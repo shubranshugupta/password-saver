@@ -1,0 +1,64 @@
+<div class="container align-items-center text-center my-3">
+    <h2 class="text-light">Welcome {{session['user']|title}}</h2>
+</div>
+<style>
+    /* #tableAddButton{
+        right: 0;
+    } */
+</style>
+
+<div class="container bg-light rounded my-5 col-sm-10">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row py-2">
+                    <div class="col-md-10">
+                        <h2>Account <b>Details</b></h2>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-info add-new" data-bs-target="#addAccountModel"
+                            data-bs-toggle="modal">
+                            <div class="d-flex">
+                                <span class="material-icons py-1">add</span>
+                                <span class="py-1">Add New</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {% if length == 0 %}
+            <div class="my-3 p-2" role="alert">
+                <h3 class="text-center text-danger">No <strong>Accounts</strong> Found!!.</h3>
+            </div>
+            {% else %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in accounts %}
+                    <tr>
+                        <td>{{ item['account'] }}</td>
+                        <td>{{ item['username'] }}</td>
+                        <td>{{ decrypt(item['password']) }}</td>
+                        <td>
+                            <a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>
+                            <a class="edit" title="Edit" data-toggle="tooltip"><i
+                                    class="material-icons">&#xE254;</i></a>
+                            <a class="delete" title="Delete" data-toggle="tooltip"><i
+                                    class="material-icons">&#xE872;</i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
