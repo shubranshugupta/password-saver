@@ -1,137 +1,188 @@
-# import boto3
 from flask import (
     Flask, 
-    jsonify, 
-    make_response, 
+    jsonify,  
     redirect, 
     request, 
     render_template, 
     flash, 
-    session
+    url_for
 )
-from flask_restful import abort
-from werkzeug.security import generate_password_hash, check_password_hash
-import pynamodb
+from flask_login import login_user, logout_user, login_required
+from flask_login import current_user
+from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
 
-from src.utils import password_check, create_id, encrypt, decrypt
-from src.model import User, PasswordSaver, Pagination
+from src.utils import decrypt, get_value, password_check, create_id, encrypt
+from src import db, login_manager
+from src.model import User, Accounts
+from src.errors.handlers import errors
 
 app = Flask(__name__, template_folder='templates')
-
-app.config["SECRET_KEY"] = "rzaNklYJO4iQ_ahQXCDLIp_AFEh2UOZYalKFDT3hhg4"
-
-if not User.exists():
-    User.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
-
-if not PasswordSaver.exists():
-    PasswordSaver.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
+app.register_blueprint(errors)
+app.config["SECRET_KEY"] = get_value('config.yaml', 'SECRET_KEY')
+app.config["SQLALCHEMY_DATABASE_URI"] = get_value('config.yaml', 'DATABASE_URL')
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = get_value('config.yaml', 'SQLALCHEMY_TRACK_MODIFICATIONS')
 
 
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('header.html')
+#database
+db.init_app(app)
+db.create_all(app=app)
 
+
+#login manager
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+
+
+@app.route('/')
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'GET':
+        if current_user.is_authenticated:
+            return redirect(url_for('user_dashboard'))
+
+        return render_template('login.html', user=current_user)
+    else:
+        email = request.form.get('email')
+        password = request.form.get('password')
+        remember = True if request.form.get('remember') else False
+
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            flash('No Account Found', 'danger')
+            return redirect(url_for('login'))
+        
+        if not check_password_hash(user.password, password):
+            flash('Please check your login details and try again.', 'danger')
+            return redirect(url_for('login'))
+
+        login_user(user, remember=remember)
+
+        flash('Login Successful', 'success')
+        return redirect(url_for('user_dashboard'))
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    username = request.form['name']
-    email = request.form['email']
-    password = request.form['password']
-    password_confirm = request.form['password_confirm']
-    
-    if password != password_confirm:
-        flash('Passwords do not match', 'danger')
-        return render_template('header.html')
+    email = request.form.get('email')
+    name = request.form.get('name')
+    password = request.form.get('password')
 
-    msg, valid = password_check(password)
-    if not valid:
+    user = User.query.filter_by(email=email).first()
+
+    if user:
+        flash('Email address already exists.', 'danger')
+        return redirect(url_for('login'))
+    
+    msg, status = password_check(password)
+    if status == False:
         flash(msg, 'warning')
-        return render_template('header.html')
-    
-    try:
-        user = User.get(hash_key=email)
+        return redirect(url_for('login'))
 
-        flash('Email already exists', 'warning')
-        return redirect('/')
-    except User.DoesNotExist:
-        password = generate_password_hash(password, salt_length=32)
-        user = User(email=email, username=username, password=password)
-        user.save()
+    new_user = User(
+        id=create_id(),
+        email=email, 
+        username=name, 
+        password=generate_password_hash(password, method='sha256'),
+        createdAt=datetime.now()
+    )
 
-        session['email'] = user.email
-        session['user'] = user.username
+    login_user(new_user)
 
-        flash('Account created successfully', 'success')
-        return redirect('/user')
-
-
-@app.route('/login', methods=['POST'])
-def login():
-    email = request.form['email']
-    password = request.form['password']
-
-    try:
-        user = User.get(hash_key=email)
-        if check_password_hash(user.password, password):
-            session['email'] = user.email
-            session['user'] = user.username
-            flash('Login successful', 'success')
-            return redirect('/user')
-        else:
-            flash('Incorrect password', 'warning')
-            return redirect('/')
-
-    except User.DoesNotExist:
-        flash('Email does not exist', 'warning')
-        return redirect('/')
-
-
-@app.route('/logout', methods=['GET'])
-def logout():
-    session.clear()
-    flash('Logout successful', 'success')
-    return redirect('/')
-
+    db.session.add(new_user)
+    db.session.commit()
+    flash('Account created successfully', 'success')
+    return redirect(url_for('user_dashboard'))
 
 @app.route('/user', methods=['GET'])
-def user():
-    if 'email' in session:
-        page = request.args.get('page', 1, type=int)
-        email = session['email']
-        try:
-            pagination = Pagination("password_saver", "userID", email, ["account", "username", "password"])
-            items, key = pagination.paginate(limit=1)
-            print(items)
-            items, key = pagination.paginate(last_key=key, limit=1)
-            print(items)
+@login_required
+def user_dashboard():
+    page = request.args.get('page', 1, type=int)
 
-        except pynamodb.exceptions.GetError:
-            return abort(503)
+    accounts = Accounts.query.filter(Accounts.user_id==current_user.id).order_by(Accounts.createdAt.desc()).paginate(page=page, per_page=10)
+    return render_template('user.html', user=current_user, accounts=accounts, decrypt=decrypt, enumerate=enumerate)
 
-        return render_template('header.html', accounts=items, length=len(items), decrypt=decrypt)
-    else:
-        flash("Please Login", "danger")
-        return redirect('/')
-
-
-@app.route('/addAccount', methods=['POST'])
+@app.route('/add_account', methods=['POST'])
+@login_required
 def add_account():
-    if 'email' in session:
-        main_email = session['email']
+    account_name = request.form.get('account')
+    username = request.form.get('email')
+    password = encrypt(request.form.get('password'))
 
-        account = request.form['account']
-        email = request.form['email']
-        password = request.form['password']
-        password = encrypt(password)
+    new_account = Accounts(
+        id=create_id(),
+        user_id=current_user.id,
+        account_name=account_name,
+        username=username,
+        password=password,
+        createdAt=datetime.now()
+    )
 
-        password_saver = PasswordSaver(accountId=create_id(), userID=main_email, account=account, username=email, password=password)
-        password_saver.save()
+    user = User.query.filter_by(id=current_user.id).first()
+    user.total_accounts += 1
 
-        flash('Account added successfully', 'success')
-        return redirect('/user')
-    else:
-        flash("Please Login", "danger")
-        return redirect('/')
+    db.session.add(new_account)
+    db.session.add(user)
+    db.session.commit()
+
+    return redirect(url_for('user_dashboard'))
+
+@app.route('/update', methods=['POST'])
+@login_required
+def update():
+    data = request.get_json()
+    account_id = data['accountid']
+    account_name = data['account']
+    username = data['email']
+    password = encrypt(data['password'])
+
+    account = Accounts.query.filter_by(id=account_id).first()
+    account.account_name = account_name
+    account.username = username
+    account.password = password
+
+    db.session.add(account)
+    db.session.commit()
+
+    return jsonify({'status': 'success'})
+
+@app.route('/delete', methods=['POST'])
+@login_required
+def delete():
+    data = request.get_json()
+    account_id = data['accountid']
+
+    user = User.query.filter_by(id=current_user.id).first()
+    user.total_accounts -= 1
+
+    account = Accounts.query.filter_by(id=account_id).first()
+
+    db.session.add(user)
+    db.session.delete(account)
+    db.session.commit()
+
+    return jsonify({'status': 'success'})
+
+@app.route('/deleteUser', methods=['POST'])
+@login_required
+def delete_user():
+    user = User.query.filter_by(id=current_user.id).first()
+    db.session.delete(user)
+    db.session.commit()
+
+    logout_user()
+    return redirect(url_for('login'))
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
