@@ -1,11 +1,9 @@
+{% extends "base.html" %}
+
+{% block base %}
 <div class="container align-items-center text-center my-3">
-    <h2 class="text-light">Welcome {{session['user']|title}}</h2>
+    <h2 class="text-light">Welcome {{user.username|title}}</h2>
 </div>
-<style>
-    /* #tableAddButton{
-        right: 0;
-    } */
-</style>
 
 <div class="container bg-light rounded my-5 col-sm-10">
     <div class="table-responsive">
@@ -27,32 +25,40 @@
                 </div>
             </div>
 
-            {% if length == 0 %}
+            {% if user.total_accounts == 0 %}
             <div class="my-3 p-2" role="alert">
                 <h3 class="text-center text-danger">No <strong>Accounts</strong> Found!!.</h3>
             </div>
             {% else %}
-            <table class="table table-bordered">
-                <thead>
+            <table class="table table-bordered border-dark border-2">
+                <thead class="table-secondary">
                     <tr>
+                        <th>Sr. No.</th>
                         <th>Account</th>
                         <th>Username</th>
                         <th>Password</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for item in accounts %}
-                    <tr>
-                        <td>{{ item['account'] }}</td>
-                        <td>{{ item['username'] }}</td>
-                        <td>{{ decrypt(item['password']) }}</td>
+                <tbody id="tableBody">
+                    {% for idx, account in enumerate(accounts.items) %}
+                    <tr id="row{{idx}}">
+                        <td class="text-center sr">{{idx+1}}</td>
+                        <td id="account{{idx}}">{{ account.account_name }}</td>
+                        <td id="username{{idx}}">{{ account.username }}</td>
+                        <td id="password{{idx}}">{{ decrypt(account.password) }}</td>
                         <td>
-                            <a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>
-                            <a class="edit" title="Edit" data-toggle="tooltip"><i
-                                    class="material-icons">&#xE254;</i></a>
-                            <a class="delete" title="Delete" data-toggle="tooltip"><i
-                                    class="material-icons">&#xE872;</i></a>
+                            <a class="add text-success" title="Add" data-toggle="tooltip" data-bs-placement="top">
+                                <i class="material-icons" id="add{{idx}}" style="display: none"
+                                    onClick="updateAccount('{{idx}}', '{{account.id}}')">&#xE03B;</i>
+                            </a>
+                            <a class="edit text-warning" title="Edit" data-toggle="tooltip" data-bs-placement="top">
+                                <i class="material-icons" id="edit{{idx}}" onClick="editAccount('{{idx}}')">&#xE254;</i>
+                            </a>
+                            <a class="delete text-danger" title="Delete" data-toggle="tooltip" data-bs-placement="top">
+                                <i class="material-icons" id="delete{{idx}}"
+                                    onclick="deleteAccount('{{account.id}}')">&#xE872;</i>
+                            </a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -61,4 +67,84 @@
             {% endif %}
         </div>
     </div>
+
+    {% if user.total_accounts != 0 and accounts.pages != 1 %}
+    <div class="row">
+        <div class="m-2 col d-flex justify-content-center">
+            {% for page_nums in accounts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_nums %}
+            {% if page_nums == accounts.page %}
+            <a class="btn btn-warning m-1" href="{{ url_for('user_dashboard', page=page_nums) }}">{{ page_nums }}</a>
+            {% else %}
+            <a class="btn btn-outline-warning m-1" href="{{ url_for('user_dashboard', page=page_nums) }}">
+                {{ page_nums}}
+            </a>
+            {% endif %}
+            {% else %}
+            <span class="align-content-center py-1">...</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<div class="modal fade bg-transparent glass" id="addAccountModel" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="addSectionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSectionLabel">Add Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('add_account') }}" method="post" id="addAccount">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="account" class="form-label">Account</label>
+                        <input type="text" class="form-control" name="account" id="account" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email/Username</label>
+                        <input type="text" class="form-control" name="email" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="d-flex">
+                            <input type="password" class="form-control" name="password" id="addAccountInput" required />
+                            <i class="py-1" onclick="toggleVisibility('addAccountInput', 'addAccountIcon')">
+                                <span class="material-icons" id="addAccountIcon">visibility</span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAccount" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('delete_user') }}" method="post" id="deleteUser" class="d-flex">
+                    <input type="password" class="form-control" name="password" id="deletePassw" required />
+                    <i class="py-1" onclick="toggleVisibility('deletePassw', 'deleteIcon')">
+                        <span class="material-icons" id="deleteIcon">visibility</span>
+                    </i>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" onclick="deleteUser()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

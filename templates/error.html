@@ -1,0 +1,213 @@
+{% extends "header.html" %}
+{% block header %}
+
+<style>
+    * {
+        transition: all 0.6s;
+    }
+
+    html {
+        height: 100%;
+    }
+
+    body {
+        font-family: 'Lato', sans-serif;
+        color: #888;
+        margin: 0;
+    }
+
+    #main {
+        display: table;
+        width: 100%;
+        height: 100vh;
+        text-align: center;
+    }
+
+    .fof {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .fof h1 {
+        font-size: 50px;
+        display: inline-block;
+        padding-right: 12px;
+        -webkit-animation: type .5s alternate infinite, textColor 20s infinite alternate;
+        -moz-animation: type .5s alternate infinite, textColor 20s infinite alternate;
+        -o-animation: type .5s alternate infinite, textColor 20s infinite alternate;
+    }
+
+    .fof h3 {
+        -webkit-animation: textColor 20s infinite alternate;
+        -moz-animation: textColor 20s infinite alternate;
+        -o-animation: textColor 20s infinite alternate;
+    }
+
+    @-webkit-keyframes type {
+        from {
+            box-shadow: inset -3px 0px 0px #888;
+        }
+
+        to {
+            box-shadow: inset -3px 0px 0px transparent;
+        }
+    }
+
+    @-webkit-keyframes textColor {
+        0% {
+            color: #3675FF;
+        }
+        10% {
+            color: #8e44ad;
+        }
+        20% {
+            color: #1abc9c;
+        }
+        30% {
+            color: #d35400;
+        }
+        40% {
+            color: #3675FF ;
+        }
+        50% {
+            color: #34495e;
+        }
+        60% {
+            color: #3675FF ;
+        }
+        70% {
+            color: #2980b9;
+        }
+        80% {
+            color: #f1c40f;
+        }
+        90% {
+            color: #2980b9;
+        }
+        100% {
+            color: pink;
+        }
+    }
+
+    @-moz-keyframes type {
+        from {
+            box-shadow: inset -3px 0px 0px #888;
+        }
+
+        to {
+            box-shadow: inset -3px 0px 0px transparent;
+        }
+    }
+
+    @-moz-keyframes textColor {
+        0% {
+            color: #3675FF;
+        }
+        10% {
+            color: #8e44ad;
+        }
+        20% {
+            color: #1abc9c;
+        }
+        30% {
+            color: #d35400;
+        }
+        40% {
+            color: #3675FF ;
+        }
+        50% {
+            color: #34495e;
+        }
+        60% {
+            color: #3675FF ;
+        }
+        70% {
+            color: #2980b9;
+        }
+        80% {
+            color: #f1c40f;
+        }
+        90% {
+            color: #2980b9;
+        }
+        100% {
+            color: pink;
+        }
+    }
+    @-o-keyframes type {
+        from {
+            box-shadow: inset -3px 0px 0px #888;
+        }
+
+        to {
+            box-shadow: inset -3px 0px 0px transparent;
+        }
+    }
+
+    @-o-keyframes textColor {
+        0% {
+            color: #3675FF;
+        }
+        10% {
+            color: #8e44ad;
+        }
+        20% {
+            color: #1abc9c;
+        }
+        30% {
+            color: #d35400;
+        }
+        40% {
+            color: #3675FF ;
+        }
+        50% {
+            color: #34495e;
+        }
+        60% {
+            color: #3675FF ;
+        }
+        70% {
+            color: #2980b9;
+        }
+        80% {
+            color: #f1c40f;
+        }
+        90% {
+            color: #2980b9;
+        }
+        100% {
+            color: pink;
+        }
+    }
+</style>
+
+{% if error|int == 404 %}
+<div class="container" id="main">
+    <div class="fof">
+        <h1 class="text-center">Error 404</h1>
+        <h3 class="text-center">Page not found!!</h3>
+    </div>
+</div>
+{% elif error|int == 500 %}
+<div class="container" id="main">
+    <div class="fof">
+        <h1 class="text-center">Error 500</h1>
+        <h3 class="text-center">Internal Server Error!!</h3>
+    </div>
+</div>
+{% elif error|int == 403 %}
+<div class="container" id="main">
+    <div class="fof">
+        <h1 class="text-center">Error 403</h1>
+        <h3 class="text-center">Forbidden!!</h3>
+    </div>
+</div>
+{% elif error|int == 405 %}
+<div class="container" id="main">
+    <div class="fof">
+        <h1 class="text-center">Error 405</h1>
+        <h3 class="text-center">This method is not allowed!!</h3>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
