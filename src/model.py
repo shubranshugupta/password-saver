@@ -1,75 +1,20 @@
-from typing import Any, List
-from pynamodb.attributes import (
-    UnicodeAttribute, 
-    ListAttribute, 
-    MapAttribute, 
-    NumberAttribute, 
-    UTCDateTimeAttribute,
-    BooleanAttribute,
-)
-from pynamodb.models import Model
-from datetime import datetime
-import boto3
-from boto3.dynamodb.conditions import Key, Attr
+from flask_login import UserMixin
+from . import db
 
+class User(UserMixin, db.Model):
+    id = db.Column(db.String(300), primary_key=True)
+    email = db.Column(db.String(200), unique=True)
+    username = db.Column(db.String(100))
+    password = db.Column(db.String(1000))
+    total_accounts = db.Column(db.Integer, default=0)
+    createdAt = db.Column(db.DateTime)
+    verified = db.Column(db.Boolean, default=False)
+    accounts = db.relationship('Accounts', backref='user', cascade="all, delete-orphan", lazy='dynamic')
 
-class User(Model):
-    class Meta:
-        table_name = "users"
-        region = "ap-south-1"
-
-    email = UnicodeAttribute(hash_key=True, null=False)
-    username = UnicodeAttribute(null=False)
-    password = UnicodeAttribute(null=False)
-    total_accounts = NumberAttribute(null=False, default=0)
-    createdAt = UTCDateTimeAttribute(null=False, default=datetime.now())
-    verified = BooleanAttribute(null=False, default=False)
-
-class PasswordSaver(Model):
-    class Meta:
-        table_name = "password_saver"
-        region = "ap-south-1"
-
-    accountId = UnicodeAttribute(hash_key=True, null=False)
-    userID = UnicodeAttribute(null=False)
-    account = UnicodeAttribute(null=False)
-    username = UnicodeAttribute(null=False)
-    password = UnicodeAttribute(null=False)
-    addedAt = UTCDateTimeAttribute(null=False, default=datetime.now())
-
-
-class Pagination:
-    def __init__(self, table_name:str, select_field:str, equal_to:Any, get_field:List[Any]=None) -> None:
-        self.select_field = select_field
-        self.equal_to = equal_to
-        self.get_field = ", ".join(get_field)
-        self.__dynamodb = boto3.resource('dynamodb')
-        self.__table = self.__dynamodb.Table(table_name)
-
-    def paginate(self, last_key=None, limit=10):
-        if last_key is not None and self.get_field is not None:
-            response = self.__table.scan(
-                FilterExpression=Attr(self.select_field).eq(self.equal_to),
-                ExclusiveStartKey=last_key,
-                Limit=limit, 
-                ProjectionExpression= self.get_field
-            )
-        elif last_key is None and self.get_field is not None:
-            response = self.__table.scan(
-                FilterExpression=Attr(self.select_field).eq(self.equal_to),
-                Limit=limit,
-                ProjectionExpression= self.get_field
-            )
-        elif last_key is not None and self.get_field is None:
-            response = self.__table.scan(
-                FilterExpression=Attr(self.select_field).eq(self.equal_to),
-                ExclusiveStartKey=last_key,
-                Limit=limit
-            )
-        else:
-            response = self.__table.scan(
-                FilterExpression=Attr(self.select_field).eq(self.equal_to),
-                Limit=limit
-            )
-        
-        return response['Items'], response.get('LastEvaluatedKey', None)
+class Accounts(db.Model):
+    id = db.Column(db.String(300), primary_key=True)
+    user_id = db.Column(db.String(300), db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
+    account_name = db.Column(db.String(1000), nullable=False)
+    username = db.Column(db.String(1000), nullable=False)
+    password = db.Column(db.String(1000), nullable=False)
+    createdAt = db.Column(db.DateTime)
