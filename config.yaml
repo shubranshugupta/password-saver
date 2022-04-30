@@ -1,0 +1,4 @@
+SECRET_KEY: "rzaNklYJO4iQ_ahQXCDLIp_AFEh2UOZYalKFDT3hhg4"
+
+DATABASE_URL: "sqlite:///password_saver.sqlite3"
+SQLALCHEMY_TRACK_MODIFICATIONS: true

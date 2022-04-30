@@ -103,3 +103,6 @@ ENV/
 .requirements
 package-lock.json
 node_modules/
+
+# Database
+*.sqlite3
