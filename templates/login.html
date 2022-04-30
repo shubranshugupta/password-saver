@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block base %}
+<main class="form-signin container px-lg-5 py-2">
+    <form action="{{ url_for('login') }}" class="px-lg-5 py-2" method="post">
+        <img class="rounded mx-auto d-block" src="{{ url_for('static', filename='login.png') }}" alt="" width="128px" ,
+            height="128px">
+        <h1 class="h3 mb-3 fw-normal text-light">Please sign in</h1>
+
+        <div class="mb-3">
+            <label for="email" class="form-label text-light fs-5">Email:</label>
+            <input type="email" class="form-control fs-5" id="loginEmail" placeholder="name@example.com" name="email">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label text-light fs-5">Password:</label>
+            <div class="input-group">
+                <input type="password" class="form-control fs-5" id="loginPassw" placeholder="Password" name="password">
+                <i class="input-group-tex bg-light rounded" onclick="toggleVisibility('loginPassw', 'loginIcon')">
+                    <span class="material-icons px-2 py-2" id="loginIcon">visibility</span>
+                </i>
+            </div>
+        </div>
+        <div class="form-switch mx-2">
+            <input class="form-check-input fs-5" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+            <label class="text-light fs-5" for="flexSwitchCheckDefault">Remember Me</label>
+        </div>
+        <button class="w-100 mb-3 btn btn-lg btn-primary my-2" type="submit">Sign in</button>
+    </form>
+</main>
+
+
+<div class="modal fade bg-transparent glass" id="signupModal" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="addSectionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSectionLabel">Signup</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('signup') }}" method="post" id="signupform">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Username</label>
+                        <input type="text" class="form-control" name="name" id="name" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="text" class="form-control" name="email" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="d-flex">
+                            <input type="password" class="form-control" name="password" id="signupPassw1" required />
+                            <i class="py-1" onclick="toggleVisibility('signupPassw1', 'signupIcon1')">
+                                <span class="material-icons" id="signupIcon1">visibility</span>
+                            </i>
+                        </div>
+                        <div id="passwordHelpBlock" class="form-text">
+                            <ul>
+                                <li>Your password must be 8-20 characters long.</li>
+                                <li>Your password should have at least one number.</li>
+                                <li>Your password should have at least one uppercase letter.</li>
+                                <li>Your password should have at least one lowercase letter.</li>
+                                <li>Your password should have at least one of the symbols $@#.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_confirm" class="form-label">Re-enter password</label>
+                        <div class="d-flex">
+                            <input type="password" class="form-control" name="password_confirm" id="signupPassw2"
+                                required />
+                            <i class="py-1" onclick="toggleVisibility('signupPassw2', 'signupIcon2')">
+                                <span class="material-icons" id="signupIcon2">visibility</span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Signup</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
