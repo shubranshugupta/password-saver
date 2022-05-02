@@ -15,7 +15,6 @@ MarkupSafe==2.1.1
 pycparser==2.21
 PyYAML==6.0
 SQLAlchemy==1.4.36
-torch-tb-profiler==0.3.1
 Werkzeug==2.1.2
 wincertstore==0.2
 zipp==3.8.0
