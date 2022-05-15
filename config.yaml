@@ -1,4 +1,18 @@
 SECRET_KEY: "rzaNklYJO4iQ_ahQXCDLIp_AFEh2UOZYalKFDT3hhg4"
-
-DATABASE_URL: "sqlite:///password_saver.sqlite3"
 SQLALCHEMY_TRACK_MODIFICATIONS: true
+
+# Default database
+DATABASE_URL: "sqlite:///password_saver.sqlite3"
+
+# Mysql database config
+MYSQL_HOST: ""
+MYSQL_USER: ""
+MYSQL_PASSWORD: ""
+
+# Mail server config
+MAIL_SERVER: 'smtp.gmail.com'
+MAIL_USERNAME: ''
+MAIL_PASSWORD: ''
+MAIL_PORT: 465
+MAIL_USE_SSL: True
+MAIL_USE_TLS: False
