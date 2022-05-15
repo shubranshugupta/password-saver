@@ -2,7 +2,74 @@ import uuid
 import os
 from cryptography.fernet import Fernet
 import yaml
+from urllib.parse import quote
 
+def read_mysql_env():
+    try:
+        host = quote(os.getenv("MYSQL_HOST"))
+        user = quote(os.getenv("MYSQL_USER"))
+        password = quote(os.getenv("MYSQL_PASSWORD"))
+        
+        if (user == "" or user is None) or (password == "" or password is None):
+            return None
+        return host, user, password
+    
+    except Exception as e:
+        print(e)
+        return None
+
+def read_mysql_config():
+    host = quote(get_value('config.yaml', 'MYSQL_HOST'))
+    user = quote(get_value('config.yaml', 'MYSQL_USER'))
+    password = quote(get_value('config.yaml', 'MYSQL_PASSWORD'))
+    if (user == "" or user is None) or (password == "" or password is None):
+        return None
+    return host, user, password
+
+def get_mysql_url():
+    output = read_mysql_env()
+    if output is None:
+        output = read_mysql_config()
+    if output is None:
+        return None
+    host, user, password = output
+    if host == "":
+        host = "localhost"
+    return f'mysql://{user}:{password}@{host}/password_saver'
+
+def read_mail_env():
+    try:
+        server = os.getenv("MAIL_SERVER")
+        username = os.getenv("MAIL_USERNAME")
+        password = os.getenv("MAIL_PASSWORD")
+        port = os.getenv("MAIL_PORT")
+        use_tls = os.getenv("MAIL_USE_TLS")
+        use_ssl = os.getenv("MAIL_USE_SSL")
+
+        if (server == "" or server is None) or (username == "" or username is None) or (password == "" or password is None):
+            return None
+        return server, username, password, port, use_tls, use_ssl
+    except Exception as e:
+        print(e)
+        return None
+
+def read_mail_config():
+    server = get_value('config.yaml', 'MAIL_SERVER')
+    username = get_value('config.yaml', 'MAIL_USERNAME')
+    password = get_value('config.yaml', 'MAIL_PASSWORD')
+    port = get_value('config.yaml', 'MAIL_PORT')
+    use_tls = get_value('config.yaml', 'MAIL_USE_TLS')
+    use_ssl = get_value('config.yaml', 'MAIL_USE_SSL')
+
+    if server == "" or username == "" or password == "":
+        raise Exception("MAIL_SERVER, MAIL_USERNAME, MAIL_PASSWORD is empty")
+    return server, username, password, port, use_tls, use_ssl
+
+def get_mail():
+    output = read_mail_env()
+    if output is None:
+        output = read_mail_config()
+    return output
 
 def read_yaml(file_path):
     with open(file_path, 'r') as f:

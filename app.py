@@ -5,28 +5,61 @@ from flask import (
     request, 
     render_template, 
     flash, 
-    url_for
+    url_for,
 )
 from flask_login import login_user, logout_user, login_required
 from flask_login import current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
+from sqlalchemy_utils import database_exists, create_database
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
-from src.utils import decrypt, get_value, password_check, create_id, encrypt
-from src import db, login_manager
+from src.utils import (
+    decrypt, 
+    get_value, 
+    password_check, 
+    create_id, 
+    encrypt,
+    get_mysql_url,
+    get_mail,
+)
+from src import db, login_manager, mail
 from src.model import User, Accounts
 from src.errors.handlers import errors
+from src.mail import send_confirm_mail, send_reset_mail
 
 app = Flask(__name__, template_folder='templates')
 app.register_blueprint(errors)
 app.config["SECRET_KEY"] = get_value('config.yaml', 'SECRET_KEY')
-app.config["SQLALCHEMY_DATABASE_URI"] = get_value('config.yaml', 'DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = get_value('config.yaml', 'SQLALCHEMY_TRACK_MODIFICATIONS')
+
+# for reading database
+mysql_url = get_mysql_url()
+if mysql_url:
+    if not database_exists(mysql_url):
+        create_database(mysql_url)
+    app.config["SQLALCHEMY_DATABASE_URI"] = mysql_url
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = get_value('config.yaml', 'DATABASE_URL')
 
 
 #database
 db.init_app(app)
 db.create_all(app=app)
+
+
+# confirm email
+server, username, password, port, use_tls, use_ssl = get_mail()
+app.config['MAIL_SERVER'] = server
+app.config['MAIL_PORT'] = port
+app.config['MAIL_USERNAME'] = username
+app.config['MAIL_PASSWORD'] = password
+app.config['MAIL_USE_TLS'] = use_tls
+app.config['MAIL_USE_SSL'] = use_ssl
+mail.init_app(app)
+
+# token serializer
+ts = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 
 #login manager
@@ -36,8 +69,6 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
-
-
 
 @app.route('/')
 @app.route('/login', methods=['POST', 'GET'])
@@ -67,11 +98,17 @@ def login():
         flash('Login Successful', 'success')
         return redirect(url_for('user_dashboard'))
 
+
 @app.route('/signup', methods=['POST'])
 def signup():
     email = request.form.get('email')
     name = request.form.get('name')
     password = request.form.get('password')
+    cnf_password = request.form.get('password_confirm')
+
+    if password != cnf_password:
+        flash('Password does not match', 'danger')
+        return redirect(url_for('login'))
 
     user = User.query.filter_by(email=email).first()
 
@@ -80,7 +117,7 @@ def signup():
         return redirect(url_for('login'))
     
     msg, status = password_check(password)
-    if status == False:
+    if not status:
         flash(msg, 'warning')
         return redirect(url_for('login'))
 
@@ -96,8 +133,107 @@ def signup():
 
     db.session.add(new_user)
     db.session.commit()
+
+    try:
+        send_confirm_mail(app, ts, email, current_user.username)
+        flash('Please check your email to confirm your Email', 'info')
+    except Exception as e:
+        flash('Error sending email', 'danger')
+
     flash('Account created successfully', 'success')
     return redirect(url_for('user_dashboard'))
+
+
+@app.route('/send_verification', methods=['GET'])
+@login_required
+def send_verification():
+    try:
+        send_confirm_mail(app, ts, current_user.email, current_user.username)
+        flash('Verification email sent. Refresh Page already Verify.', 'success')
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        flash('Error sending email', 'danger')
+        return jsonify({'status': 'error'})
+
+
+@app.route('/confirm/<token>', methods=['GET'])
+def confirm_email(token):
+    try:
+        email = ts.loads(token, salt='email-confirm', max_age=86400)
+        user = User.query.filter_by(email=email).first()
+        user.verified = True
+        db.session.commit()
+        flash('Your email has been confirmed', 'success')
+        return redirect(url_for('login'))
+    except SignatureExpired:
+        flash('The token has expired', 'danger')
+        return redirect(url_for('login'))
+    except BadSignature:
+        flash('The token is invalid', 'danger')
+        return redirect(url_for('login'))
+
+
+@app.route('/send_reset_password', methods=['GET', 'POST'])
+def send_reset_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('user_dashboard'))
+
+    email = request.form.get('email')
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        flash('No Account Found', 'danger')
+        return redirect(url_for('login'))
+
+    if user.verified:
+        try:
+            send_reset_mail(app, ts, email)
+            flash('Password Reset mail send.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            flash('Error sending email', 'danger')
+            return redirect(url_for('login'))
+    else:
+        flash('Please verify your email first', 'danger')
+        return redirect(url_for('login'))
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('user_dashboard'))
+
+    try:
+        email = ts.loads(token, salt='reset-password', max_age=1800)
+    except SignatureExpired:
+        flash('The token has expired', 'danger')
+        return redirect(url_for('login'))
+    except BadSignature:
+        flash('The token is invalid', 'danger')
+        return redirect(url_for('login'))
+    
+    if request.method == 'GET':
+        return render_template('reset_password.html', user=current_user, token=token)
+    else:
+        password = request.form.get('password')
+        cnf_password = request.form.get('cnf_password')
+
+        if password != cnf_password:
+            flash('Password does not match', 'danger')
+            return redirect(url_for('reset_password', token=token))
+        
+        msg, status = password_check(password)
+        if not status:
+            flash(msg, 'warning')
+            return redirect(url_for('reset_password', token=token))
+        
+        user = User.query.filter_by(email=email).first()
+        user.password = generate_password_hash(password, method='sha256')
+        db.session.commit()
+
+        flash('Password changed successfully', 'success')
+        return redirect(url_for('login'))
+
 
 @app.route('/user', methods=['GET'])
 @login_required
@@ -105,7 +241,24 @@ def user_dashboard():
     page = request.args.get('page', 1, type=int)
 
     accounts = Accounts.query.filter(Accounts.user_id==current_user.id).order_by(Accounts.createdAt.desc()).paginate(page=page, per_page=10)
-    return render_template('user.html', user=current_user, accounts=accounts, decrypt=decrypt, enumerate=enumerate)
+    return render_template(
+        'user.html', 
+        user=current_user, 
+        accounts=accounts, 
+        decrypt=decrypt, 
+        enumerate=enumerate,
+        verified = current_user.verified
+    )
+
+
+@app.route('/account_detail', methods=['GET'])
+@login_required
+def account_detail():
+    return render_template(
+        'user_account.html', 
+        user=current_user,
+    )
+
 
 @app.route('/add_account', methods=['POST'])
 @login_required
@@ -132,6 +285,7 @@ def add_account():
 
     return redirect(url_for('user_dashboard'))
 
+
 @app.route('/update', methods=['POST'])
 @login_required
 def update():
@@ -151,6 +305,7 @@ def update():
 
     return jsonify({'status': 'success'})
 
+
 @app.route('/delete', methods=['POST'])
 @login_required
 def delete():
@@ -168,6 +323,7 @@ def delete():
 
     return jsonify({'status': 'success'})
 
+
 @app.route('/deleteUser', methods=['POST'])
 @login_required
 def delete_user():
@@ -175,15 +331,18 @@ def delete_user():
     db.session.delete(user)
     db.session.commit()
 
+    flash('Account deleted successfully', 'success')
     logout_user()
     return redirect(url_for('login'))
+
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
+    flash('You have been logged out', 'success')
     return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=80)
+    app.run(debug=True, port=80, host="0.0.0.0")
