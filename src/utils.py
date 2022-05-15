@@ -33,6 +33,7 @@ def get_mysql_url():
     if output is None:
         return None
     host, user, password = output
+    print("Mysql: ", output)
     if host == "":
         host = "localhost"
     return f'mysql://{user}:{password}@{host}/password_saver'
@@ -42,9 +43,9 @@ def read_mail_env():
         server = os.getenv("MAIL_SERVER")
         username = os.getenv("MAIL_USERNAME")
         password = os.getenv("MAIL_PASSWORD")
-        port = os.getenv("MAIL_PORT")
-        use_tls = os.getenv("MAIL_USE_TLS")
-        use_ssl = os.getenv("MAIL_USE_SSL")
+        port = int(os.getenv("MAIL_PORT"))
+        use_tls = True if os.getenv("MAIL_USE_TLS") == "True" else False
+        use_ssl = True if os.getenv("MAIL_USE_SSL") == "True" else False
 
         if (server == "" or server is None) or (username == "" or username is None) or (password == "" or password is None):
             return None
@@ -69,6 +70,7 @@ def get_mail():
     output = read_mail_env()
     if output is None:
         output = read_mail_config()
+    print("Mail: ", output)
     return output
 
 def read_yaml(file_path):
