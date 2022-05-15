@@ -28,7 +28,7 @@
                 </div>
                 <div class="d-flex align-items-center col-4 justify-content-md-end">
                     <a class="nav-link active" href="#" data-bs-toggle="modal" data-bs-target="#forgetPassword">
-                    <span class="text-light fs-5">Forgot Password?</span>
+                        <span class="text-light fs-5">Forgot Password?</span>
                     </a>
                 </div>
             </div>
@@ -109,6 +109,38 @@
                     </div>
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-info">Send Mail</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bg-transparent glass" id="adminLogin" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="addSectionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Admin Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('admin_login') }}" , method="post">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="d-flex">
+                            <input type="password" class="form-control" name="password" id="adminPasswd" required />
+                            <i class="p-2" onclick="toggleVisibility('adminPasswd', 'adminIcon')">
+                                <span class="material-icons" id="adminIcon">visibility</span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-outline-info">Login</button>
                     </div>
                 </form>
             </div>

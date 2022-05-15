@@ -21,7 +21,7 @@
 
                 <div class="collapse navbar-collapse flex-row-reverse" id="navbarScroll">
                     <ul class="navbar-nav navbar-nav-scroll text-white p-2 rounded">
-                        {% if user.is_authenticated %}
+                        {% if user.is_authenticated and user.id|string != 'admin' %}
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/">{{ user.username|title }}</a>
                         </li>
@@ -31,9 +31,9 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="/logout">Logout</a>
                         </li>
-                        {% elif user.username|string == 'admin' %}
+                        {% elif user.id|string == 'admin' %}
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">{{ Admin }}</a>
+                            <a class="nav-link active" aria-current="page" href="#">Admin</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" href="/logout">Logout</a>
@@ -47,7 +47,8 @@
                                 data-bs-target="#signupModal">Register</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">Login as Admin</a>
+                            <a class="nav-link active" href="#" data-bs-toggle="modal"
+                                data-bs-target="#adminLogin">Login as Admin</a>
                         </li>
                         {% endif %}
                     </ul>

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block base %}
+
+<div class="container align-items-center text-center my-3">
+    <h2 class="text-light">Welcome {{user.username|title}}</h2>
+</div>
+
+<div class="container bg-light rounded my-5 col-sm-10">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row py-2">
+                    <div class="col-md-10">
+                        <h2>Users <b>Details</b></h2>
+                    </div>
+                </div>
+            </div>
+        
+            {% if user.total == 0 %}
+            <div class="my-3 p-2" role="alert">
+                <h3 class="text-center text-danger">No <strong>Users</strong> Found!!.</h3>
+            </div>
+            {% else %}
+            <table class="table table-bordered border-dark border-2">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Sr. No.</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Total Account</th>
+                        <th>Created ON</th>
+                        <th>Verified</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for idx, account in enumerate(users_detail.items) %}
+                    <tr id="row{{idx}}">
+                        <td class="text-center sr">{{idx+1}}</td>
+                        <td id="account{{idx}}">{{ account.email }}</td>
+                        <td id="username{{idx}}">{{ account.username }}</td>
+                        <td id="password{{idx}}">{{ account.total_accounts }}</td>
+                        <td id="password{{idx}}">{{ account.createdAt.date() }}</td>
+                        <td id="password{{idx}}">{{ account.verified }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if users_detail.total != 0 and users_detail.pages != 1 %}
+    <div class="row">
+        <div class="m-2 col d-flex justify-content-center">
+            {% for page_nums in users_detail.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_nums %}
+            {% if page_nums == users_detail.page %}
+            <a class="btn btn-warning m-1" href="{{ url_for('admin_dashboard', page=page_nums) }}">{{ page_nums }}</a>
+            {% else %}
+            <a class="btn btn-outline-warning m-1" href="{{ url_for('admin_dashboard', page=page_nums) }}">
+                {{ page_nums}}
+            </a>
+            {% endif %}
+            {% else %}
+            <span class="align-content-center py-1">...</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}
