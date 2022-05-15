@@ -18,3 +18,9 @@ class Accounts(db.Model):
     username = db.Column(db.String(1000), nullable=False)
     password = db.Column(db.String(1000), nullable=False)
     createdAt = db.Column(db.DateTime)
+
+class Admin(UserMixin):
+    def __init__(self, username, password):
+        self.id = "admin"
+        self.username = username
+        self.password = password

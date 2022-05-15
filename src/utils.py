@@ -73,6 +73,33 @@ def get_mail():
     print("Mail: ", output)
     return output
 
+def read_admin_env():
+    try:
+        username = os.getenv("ADMIN_EMAIL")
+        password = os.getenv("ADMIN_PASSWORD")
+
+        if (username == "" or username is None) or (password == "" or password is None):
+            return None
+        return username, password
+    except Exception as e:
+        print(e)
+        return None
+
+def read_admin_config():
+    username = get_value('config.yaml', 'ADMIN_EMAIL')
+    password = get_value('config.yaml', 'ADMIN_PASSWORD')
+
+    if username == "" or password == "":
+        raise Exception("ADMIN_EMAIL, ADMIN_PASSWORD is empty")
+    return username, password
+
+def get_admin():
+    output = read_admin_env()
+    if output is None:
+        output = read_admin_config()
+    print("Admin: ", output)
+    return output
+
 def read_yaml(file_path):
     with open(file_path, 'r') as f:
         return yaml.load(f, Loader=yaml.SafeLoader)
