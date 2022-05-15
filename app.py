@@ -1,4 +1,3 @@
-import email
 from flask import (
     Flask, 
     jsonify,  
@@ -23,12 +22,14 @@ from src.utils import (
     encrypt,
     get_mysql_url,
     get_mail,
+    get_admin,
 )
 from src import db, login_manager, mail
-from src.model import User, Accounts
+from src.model import User, Accounts, Admin
 from src.errors.handlers import errors
 from src.mail import send_confirm_mail, send_reset_mail
 
+# Create a Flask application
 app = Flask(__name__, template_folder='templates')
 app.register_blueprint(errors)
 app.config["SECRET_KEY"] = get_value('config.yaml', 'SECRET_KEY')
@@ -59,8 +60,14 @@ app.config['MAIL_USE_TLS'] = use_tls
 app.config['MAIL_USE_SSL'] = use_ssl
 mail.init_app(app)
 
+
 # token serializer
 ts = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+
+# Admin details
+admin_email, admin_password = get_admin()
+admin = Admin(admin_email, admin_password)
 
 
 #login manager
@@ -69,11 +76,19 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
+    if user_id is None:
+        return None
+    if user_id == admin_email or user_id == "admin":
+        return admin
     return User.query.get(user_id)
+
 
 @app.route('/')
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+    '''
+    Login page and home page
+    '''
     if request.method == 'GET':
         if current_user.is_authenticated:
             return redirect(url_for('user_dashboard'))
@@ -100,8 +115,30 @@ def login():
         return redirect(url_for('user_dashboard'))
 
 
+@app.route('/admin_login', methods=['POST'])
+def admin_login():
+    '''
+    Admin login page
+    '''
+    email = request.form.get('username')
+    password = request.form.get('password')
+    
+    if (email == admin_email) and (password == admin_password):
+        login_user(admin, remember=True)
+        print(current_user, current_user.is_authenticated)
+
+        flash('Login Successful', 'success')
+        return redirect(url_for('admin_dashboard'))
+    
+    flash('Please check your login details and try again.', 'danger')
+    return redirect(url_for('login'))
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
+    '''
+    Signup page
+    '''
     email = request.form.get('email')
     name = request.form.get('name')
     password = request.form.get('password')
@@ -148,6 +185,9 @@ def signup():
 @app.route('/send_verification', methods=['GET'])
 @login_required
 def send_verification():
+    '''
+    Send verification email
+    '''
     try:
         send_confirm_mail(app, ts, current_user.email, current_user.username)
         flash('Verification email sent. Refresh Page already Verify.', 'success')
@@ -159,13 +199,20 @@ def send_verification():
 
 @app.route('/confirm/<token>', methods=['GET'])
 def confirm_email(token):
+    '''
+    Confirm email
+    '''
     try:
         email = ts.loads(token, salt='email-confirm', max_age=86400)
         user = User.query.filter_by(email=email).first()
-        user.verified = True
-        db.session.commit()
-        flash('Your email has been confirmed', 'success')
-        return redirect(url_for('login'))
+        if user:
+            user.verified = True
+            db.session.commit()
+            flash('Your email has been confirmed', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('User not exist', 'danger')
+            return redirect(url_for('login'))
     except SignatureExpired:
         flash('The token has expired', 'danger')
         return redirect(url_for('login'))
@@ -176,6 +223,9 @@ def confirm_email(token):
 
 @app.route('/send_reset_password', methods=['GET', 'POST'])
 def send_reset_password():
+    '''
+    Send reset password email
+    '''
     if current_user.is_authenticated:
         return redirect(url_for('user_dashboard'))
 
@@ -201,11 +251,18 @@ def send_reset_password():
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    '''
+    Reset password
+    '''
     if current_user.is_authenticated:
         return redirect(url_for('user_dashboard'))
 
     try:
         email = ts.loads(token, salt='reset-password', max_age=1800)
+        user = User.query.filter_by(email=email).first()
+        if user is None:
+            flash('User Not present', 'danger')
+            return redirect(url_for('login'))
     except SignatureExpired:
         flash('The token has expired', 'danger')
         return redirect(url_for('login'))
@@ -228,7 +285,6 @@ def reset_password(token):
             flash(msg, 'warning')
             return redirect(url_for('reset_password', token=token))
         
-        user = User.query.filter_by(email=email).first()
         user.password = generate_password_hash(password, method='sha256')
         db.session.commit()
 
@@ -239,6 +295,9 @@ def reset_password(token):
 @app.route('/user', methods=['GET'])
 @login_required
 def user_dashboard():
+    '''
+    User dashboard
+    '''
     page = request.args.get('page', 1, type=int)
 
     accounts = Accounts.query.filter(Accounts.user_id==current_user.id).order_by(Accounts.createdAt.desc()).paginate(page=page, per_page=10)
@@ -255,15 +314,38 @@ def user_dashboard():
 @app.route('/account_detail', methods=['GET'])
 @login_required
 def account_detail():
+    '''
+    User account detail
+    '''
     return render_template(
         'user_account.html', 
         user=current_user,
     )
 
 
+@app.route('/admin', methods=['GET'])
+@login_required
+def admin_dashboard():
+    '''
+    Admin dashboard
+    '''
+    page = request.args.get('page', 1, type=int)
+
+    users = User.query.order_by(User.createdAt.desc()).paginate(page=page, per_page=10)
+    return render_template(
+        'admin.html',
+        user=current_user,
+        users_detail=users,
+        enumerate=enumerate,
+    )
+
+
 @app.route('/update_username', methods=['POST'])
 @login_required
 def update_username():
+    '''
+    Update users username
+    '''
     data = request.get_json()
     username = data.get("username")
     email = current_user.email
@@ -279,6 +361,9 @@ def update_username():
 @app.route('/add_account', methods=['POST'])
 @login_required
 def add_account():
+    '''
+    Add different account to user
+    '''
     account_name = request.form.get('account')
     username = request.form.get('email')
     password = encrypt(request.form.get('password'))
@@ -305,6 +390,9 @@ def add_account():
 @app.route('/update', methods=['POST'])
 @login_required
 def update():
+    '''
+    Update users different accounts that saved.
+    '''
     data = request.get_json()
     account_id = data['accountid']
     account_name = data['account']
@@ -325,6 +413,9 @@ def update():
 @app.route('/delete', methods=['POST'])
 @login_required
 def delete():
+    '''
+    Delete users different accounts that saved.
+    '''
     data = request.get_json()
     account_id = data['accountid']
 
@@ -343,6 +434,14 @@ def delete():
 @app.route('/deleteUser', methods=['POST'])
 @login_required
 def delete_user():
+    '''
+    Delete users.
+    '''
+    password = request.form.get('password')
+    if not check_password_hash(current_user.password, password):
+        flash('Password does not match', 'danger')
+        return redirect(url_for('account_detail'))
+
     user = User.query.filter_by(id=current_user.id).first()
     db.session.delete(user)
     db.session.commit()
@@ -355,6 +454,9 @@ def delete_user():
 @app.route('/logout')
 @login_required
 def logout():
+    '''
+    Logout user
+    '''
     logout_user()
     flash('You have been logged out', 'success')
     return redirect(url_for('login'))
