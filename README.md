@@ -20,7 +20,7 @@ Most of the time, you don't want to store your passwords in plain text and it is
 
 ![Img2](https://github.com/shubranshugupta/password-saver/blob/main/static/Img2.png)
 
-![Img3](https://github.com/shubranshugupta/password-saver/blob/main/static/Img3.png)
+![Img3](https://github.com/shubranshugupta/password-saver/blob/main/static/Img3.jpg)
 
 ## How to Install and run?
 
