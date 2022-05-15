@@ -18,3 +18,6 @@ SQLAlchemy==1.4.36
 Werkzeug==2.1.2
 wincertstore==0.2
 zipp==3.8.0
+mysqlclient==2.1.0
+sqlalchemy-utils==0.38.2
+Flask-Mail==0.9.1
