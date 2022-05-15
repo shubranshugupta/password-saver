@@ -100,3 +100,21 @@ function deleteAccount(accountid) {
         }
     });
 }
+
+function verifyAccount(){
+    $.ajax({
+        url: "/send_verification",
+        type: 'GET',
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        success: function (data) {
+            if (data.status == 'success') {
+                window.location.reload();
+            } else {
+                alert('Error');
+            }
+        }
+    });
+}
