@@ -20,9 +20,18 @@
                 </i>
             </div>
         </div>
-        <div class="form-switch mx-2">
-            <input class="form-check-input fs-5" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-            <label class="text-light fs-5" for="flexSwitchCheckDefault">Remember Me</label>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="form-switch mx-5 d-flex align-items-center col-6">
+                    <input class="form-check-input fs-5" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                    <label class="text-light fs-5" for="flexSwitchCheckDefault">Remember Me</label>
+                </div>
+                <div class="d-flex align-items-center col-4 justify-content-md-end">
+                    <a class="nav-link active" href="#" data-bs-toggle="modal" data-bs-target="#forgetPassword">
+                    <span class="text-light fs-5">Forgot Password?</span>
+                    </a>
+                </div>
+            </div>
         </div>
         <button class="w-100 mb-3 btn btn-lg btn-primary my-2" type="submit">Sign in</button>
     </form>
@@ -80,6 +89,29 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bg-transparent glass" id="forgetPassword" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="addSectionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Forget Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('send_reset_password') }}", method="post">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="text" class="form-control" name="email" placeholder="name@example.com" required />
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-info">Send Mail</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

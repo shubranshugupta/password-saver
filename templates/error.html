@@ -209,5 +209,12 @@
         <h3 class="text-center">This method is not allowed!!</h3>
     </div>
 </div>
+{% elif err0r|int == 400 %}
+<div class="container" id="main">
+    <div class="fof">
+        <h1 class="text-center">Error 400</h1>
+        <h3 class="text-center">Bad Request!!</h3>
+    </div>
+</div>
 {% endif %}
 {% endblock %}

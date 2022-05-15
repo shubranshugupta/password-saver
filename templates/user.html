@@ -14,8 +14,13 @@
                         <h2>Account <b>Details</b></h2>
                     </div>
                     <div class="col-md-2">
+                        {% if verified %}
                         <button type="button" class="btn btn-info add-new" data-bs-target="#addAccountModel"
                             data-bs-toggle="modal">
+                        {% else %}
+                        <button type="button" class="btn btn-info add-new" data-bs-target="#verifyAccount"
+                            data-bs-toggle="modal">
+                        {% endif %}
                             <div class="d-flex">
                                 <span class="material-icons py-1">add</span>
                                 <span class="py-1">Add New</span>
@@ -125,24 +130,22 @@
     </div>
 </div>
 
-<div class="modal fade" id="deleteAccount" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade bg-transparent glass" id="verifyAccount" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="addSectionLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Delete Account</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Verify Account</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ url_for('delete_user') }}" method="post" id="deleteUser" class="d-flex">
-                    <input type="password" class="form-control" name="password" id="deletePassw" required />
-                    <i class="py-1" onclick="toggleVisibility('deletePassw', 'deleteIcon')">
-                        <span class="material-icons" id="deleteIcon">visibility</span>
-                    </i>
-                </form>
+                <p>
+                    You Email is not <strong>verified</strong>. Please verify your email to continue.
+                </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" onclick="deleteUser()">Delete</button>
+                <button type="button" class="btn btn-danger" onclick="verifyAccount()">Verify</button>
             </div>
         </div>
     </div>

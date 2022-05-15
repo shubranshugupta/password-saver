@@ -9,14 +9,13 @@
                 {% else %}
                 <a class="navbar-brand" href="{{ url_for('login') }}">
                     {% endif %}
-                    <img class="rounded mx-auto" src="{{ url_for('static', filename='title.png') }}" alt=""
-                        width="30" height="24" class="d-inline-block align-text-top">
+                    <img class="rounded mx-auto" src="{{ url_for('static', filename='title.png') }}" alt="" width="30"
+                        height="24" class="d-inline-block align-text-top">
                     Password Saver
                 </a>
                 <!-- <a class="navbar-brand" href="#">Password Saver</a> -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false"
-                    aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll"
+                    aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
@@ -24,11 +23,10 @@
                     <ul class="navbar-nav navbar-nav-scroll text-white p-2 rounded">
                         {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">{{ user.username|title }}</a>
+                            <a class="nav-link active" aria-current="page" href="/">{{ user.username|title }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="#" data-bs-toggle="modal"
-                                data-bs-target="#deleteAccount">Delete Account</a>
+                            <a class="nav-link active" href="/account_detail">Account</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" href="/logout">Logout</a>
@@ -61,66 +59,56 @@
 
     {% endblock %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="container px-lg-5" id="message">
+    <div class="container-fluid" id="message">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
         {% for category, message in messages %}
-        {% if category|string == 'message' %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {% else %}
-            <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
-                {% endif %}
-                {{message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
+        <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+        {% endfor %}
         {% endif %}
         {% endwith %}
+    </div>
 
-        <footer class="container-fluid my-5 py-3 my-md-2 py-md-2">
-            <div class="row">
-                <div class="d-flex align-items-center col-md-4 justify-content-center justify-content-md-start"
-                    id="copyright">
-                    <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
-                        <img src="{{url_for('static', filename='title.png')}}" alt="" class="bi" width="34"
-                            height="34">
-                    </a>
-                    <div class="d-flex flex-column">
-                        <span class="text-light">2022© Password Saver</span>
-                        <span class="text-light">Shubhranshu Gupta</span>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-center col-md-4 justify-content-center justify-content-md-center p-2"
-                    id="made">
-                    <span class="text-light">Made With </span>
-                    <img src="{{url_for('static', filename='love.png')}}" class="bi" width="34" height="34">
-                </div>
-
-                <div class="d-flex col-md-4 align-items-center justify-content-center justify-content-md-end"
-                    id="links">
-                    <div>
-                        <a class="text-muted" href="https://www.linkedin.com/in/shubhranshu-gupta24/">
-                            <img src="{{url_for('static', filename='linkedin.svg')}}" class="bi" width="50"
-                                height="50">
-                        </a>
-                    </div>
-                    <div>
-                        <a class="text-muted" href="https://medium.com/@shubhranshugupta">
-                            <img src="{{url_for('static', filename='medium.svg')}}" class="bi" width="50"
-                                height="50">
-                        </a>
-                    </div>
-                    <div>
-                        <a class="text-muted" href="https://github.com/shubranshugupta">
-                            <img src="{{url_for('static', filename='github.svg')}}" class="bi" width="50"
-                                height="50">
-                        </a>
-                    </div>
+    <footer class="container-fluid">
+        <div class="row">
+            <div class="d-flex align-items-center col-md-4 justify-content-center justify-content-md-start"
+                id="copyright">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                    <img src="{{url_for('static', filename='title.png')}}" alt="" class="bi" width="34" height="34">
+                </a>
+                <div class="d-flex flex-column">
+                    <span class="text-light">2022© Password Saver</span>
+                    <span class="text-light">Shubhranshu Gupta</span>
                 </div>
             </div>
-        </footer>
-    </div>
+
+            <div class="d-flex align-items-center col-md-4 justify-content-center justify-content-md-center p-2"
+                id="made">
+                <span class="text-light">Made With </span>
+                <img src="{{url_for('static', filename='love.png')}}" class="bi" width="34" height="34">
+            </div>
+
+            <div class="d-flex col-md-4 align-items-center justify-content-center justify-content-md-end" id="links">
+                <div>
+                    <a class="text-muted" href="https://www.linkedin.com/in/shubhranshu-gupta24/">
+                        <img src="{{url_for('static', filename='linkedin.svg')}}" class="bi" width="50" height="50">
+                    </a>
+                </div>
+                <div>
+                    <a class="text-muted" href="https://medium.com/@shubhranshugupta">
+                        <img src="{{url_for('static', filename='medium.svg')}}" class="bi" width="50" height="50">
+                    </a>
+                </div>
+                <div>
+                    <a class="text-muted" href="https://github.com/shubranshugupta">
+                        <img src="{{url_for('static', filename='github.svg')}}" class="bi" width="50" height="50">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
 </div>
 {% endblock %}

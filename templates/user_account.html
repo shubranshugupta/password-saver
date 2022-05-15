@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block base %}
+
+<div class="container bg-light rounded my-5 col-sm-10 col-lg-8">
+    <h2 class="d-flex justify-content-center p-3">
+        Account Details
+    </h2>
+    <div class="mb-3 p-1">
+        <label for="name" class="form-label">Username:</label>
+        <input type="text" class="form-control" name="name" id="name" value="{{user.username}}" required disabled />
+    </div>
+    <div class="mb-3 p-1">
+        <label for="email" class="form-label">Email:</label>
+        <input type="text" class="form-control" name="email" value="{{user.email}}" required disabled />
+    </div>
+    <div class="mb-3 p-1">
+        <label for="total_accounts" class="form-label">Total Accounts:</label>
+        <input type="datetime" class="form-control" name="total_accounts" value="{{user.total_accounts}}" required disabled />
+    </div>
+    <div class="mb-3 p-1">
+        <label for="createdAt" class="form-label">Created On:</label>
+        <input type="text" class="form-control" name="createdAt" value="{{user.createdAt.date()}}" required disabled />
+    </div>
+    <div class="mb-3 d-flex justify-content-center p-3">
+        <button class="btn btn-outline-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteAccount">Delete
+            Account</button>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAccount" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('delete_user') }}" method="post" id="deleteUser" class="d-flex">
+                    <input type="password" class="form-control" name="password" id="deletePassw" required />
+                    <i class="py-1" onclick="toggleVisibility('deletePassw', 'deleteIcon')">
+                        <span class="material-icons" id="deleteIcon">visibility</span>
+                    </i>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" onclick="deleteUser()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
