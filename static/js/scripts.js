@@ -40,6 +40,17 @@ function editAccount(idx) {
     hideUnhide(add);
 }
 
+function editUsername(idx){
+    let username = document.getElementById(idx);
+    username.disabled = false;
+
+    let edit = document.getElementById('edit_username');
+    hideUnhide(edit);
+
+    let add = document.getElementById('add_username');
+    hideUnhide(add);
+}
+
 function updateAccount(idx, accountid) {
     let account = document.getElementById('tableInputAcc' + idx);
     let username = document.getElementById('tableInputUser' + idx);
@@ -73,6 +84,30 @@ function updateAccount(idx, accountid) {
 
                 let add = document.getElementById('add' + idx);
                 hideUnhide(add);
+            } else {
+                alert('Error');
+            }
+        }
+    });
+}
+
+function updateUsername(idx) {
+    let username = document.getElementById(idx);
+    username.disabled = true;
+
+    $.ajax({
+        url: "/update_username",
+        type: 'POST',
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        data: JSON.stringify({
+            username: username.value,
+        }),
+        success: function (data) {
+            if (data.status == 'success') {
+                window.location.reload();
             } else {
                 alert('Error');
             }

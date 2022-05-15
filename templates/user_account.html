@@ -8,7 +8,16 @@
     </h2>
     <div class="mb-3 p-1">
         <label for="name" class="form-label">Username:</label>
-        <input type="text" class="form-control" name="name" id="name" value="{{user.username}}" required disabled />
+        <div class="d-flex">
+            <input type="text" class="form-control" name="name" id="name" value="{{user.username}}" required disabled />
+            <a class="add text-success p-1" title="Add" data-toggle="tooltip" data-bs-placement="top">
+                <i class="material-icons" id="add_username" style="display: none"
+                    onClick="updateUsername('name')">&#xE03B;</i>
+            </a>
+            <a class="edit text-warning p-1" title="Edit" data-toggle="tooltip" data-bs-placement="top">
+                <i class="material-icons" id="edit_username" onClick="editUsername('name')">&#xE254;</i>
+            </a>
+        </div>
     </div>
     <div class="mb-3 p-1">
         <label for="email" class="form-label">Email:</label>
@@ -16,13 +25,14 @@
     </div>
     <div class="mb-3 p-1">
         <label for="total_accounts" class="form-label">Total Accounts:</label>
-        <input type="datetime" class="form-control" name="total_accounts" value="{{user.total_accounts}}" required disabled />
+        <input type="datetime" class="form-control" name="total_accounts" value="{{user.total_accounts}}" required
+            disabled />
     </div>
     <div class="mb-3 p-1">
         <label for="createdAt" class="form-label">Created On:</label>
         <input type="text" class="form-control" name="createdAt" value="{{user.createdAt.date()}}" required disabled />
     </div>
-    <div class="mb-3 d-flex justify-content-center p-3">
+    <div class="mb-3 d-flex justify-content-center p-2">
         <button class="btn btn-outline-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteAccount">Delete
             Account</button>
     </div>
