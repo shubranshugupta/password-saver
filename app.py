@@ -1,3 +1,4 @@
+import email
 from flask import (
     Flask, 
     jsonify,  
@@ -258,6 +259,21 @@ def account_detail():
         'user_account.html', 
         user=current_user,
     )
+
+
+@app.route('/update_username', methods=['POST'])
+@login_required
+def update_username():
+    data = request.get_json()
+    username = data.get("username")
+    email = current_user.email
+
+    user = User.query.filter_by(email=email).first()
+    user.username = username
+    db.session.commit()
+
+    flash('Username updated successfully', 'success')
+    return jsonify({'status': 'success'})
 
 
 @app.route('/add_account', methods=['POST'])
