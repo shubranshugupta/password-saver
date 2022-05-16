@@ -70,3 +70,31 @@ Most of the time, you don't want to store your passwords in plain text and it is
 2. From Docker Image.
 
    For Docker image, you can use the following the [link](https://hub.docker.com/repository/docker/shubhgupta24/passwordsaver)
+
+## 🔧 Tools and Technology used
+
+1. OS:
+
+    ![Linux](https://img.shields.io/badge/OS-Linux-informational?style=flat&logo=linux&logoColor=white&color=2bbc8a)
+    ![Windows](https://img.shields.io/badge/OS-Windows-informational?style=flat&logo=windows&logoColor=white&color=2bbc8a)
+
+2. Programing Language:
+
+    ![Python](https://img.shields.io/badge/Code-Python-informational?style=flat&logo=python&logoColor=white&color=2bbc8a)
+    ![JS](https://img.shields.io/badge/Code-JavaScript-informational?style=flat&logo=javascript&logoColor=white&color=2bbc8a)
+    ![HTML](https://img.shields.io/badge/Code-HTML-informational?style=flat&logo=html5&logoColor=white&color=2bbc8a)
+
+3. Database:
+
+    ![SQLite](https://img.shields.io/badge/DB-SQLite-informational?style=flat&logo=sqlite&logoColor=white&color=2bbc8a)
+    ![MySQL](https://img.shields.io/badge/DB-MySQL-informational?style=flat&logo=mysql&logoColor=white&color=2bbc8a)
+
+4. Tools:
+
+    ![Git](https://img.shields.io/badge/Tools-GitHub-informational?style=flat&logo=github&logoColor=white&color=2bbc8a)
+    ![Docker](https://img.shields.io/badge/Tools-Docker-informational?style=flat&logo=docker&logoColor=white&color=2bbc8a)
+    ![Flask](https://img.shields.io/badge/Tools-Flask-informational?style=flat&logo=flask&logoColor=white&color=2bbc8a)
+    ![SQLAlchemy](https://img.shields.io/badge/Tools-SQLAlchemy-informational?style=flat&logo=sqlalchemy&logoColor=white&color=2bbc8a)
+    ![Bootstrap](https://img.shields.io/badge/Tools-Bootstrap-informational?style=flat&logo=bootstrap&logoColor=white&color=2bbc8a)
+    ![Gmail](https://img.shields.io/badge/Tools-Gmail-informational?style=flat&logo=gmail&logoColor=white&color=2bbc8a)
+    ![Cryptography](https://img.shields.io/badge/Tools-Cryptography-informational?style=flat&logo=cryptography&logoColor=white&color=2bbc8a)
