@@ -13,6 +13,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from sqlalchemy_utils import database_exists, create_database
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+import os
 
 from src.utils import (
     decrypt, 
@@ -28,6 +29,9 @@ from src import db, login_manager, mail
 from src.model import User, Accounts, Admin
 from src.errors.handlers import errors
 from src.mail import send_confirm_mail, send_reset_mail
+
+# Create Important Folder
+os.makedirs("data", exist_ok=True)
 
 # Create a Flask application
 app = Flask(__name__, template_folder='templates')
