@@ -4,15 +4,15 @@ Most of the time, you don't want to store your passwords in plain text and it is
 
 ## Features
 
-1. User login details are stored in a database. Where password store in hashed form. For hashing it use [SHA256](https://en.wikipedia.org/wiki/SHA-2).
+1. User login details are stored in a database. Where password stored in hashed form. For hashing, it uses [SHA256](https://en.wikipedia.org/wiki/SHA-2).
 
-2. User can save your account details in a database. Users account password is saved in encrypted form. For encryption it use [Fernet Encryption](https://cryptography.io/en/latest/fernet/).
+2. Users can save their account details in a database. The user's account password is saved in encrypted form. For encryption it use [Fernet Encryption](https://cryptography.io/en/latest/fernet/).
   
-3. It also have email verification and forget password feature. You can verify your email address and reset your password by clicking on the link send to user in the email.
+3. It also has email verification and forget password features. You can verify your email address and reset your password by clicking on the link sent to the user in the email.
 
-4. For database we can use [SQLite](https://www.sqlite.org/) or [MySQL](https://www.mysql.com/). By default it uses SQLite as database.
+4. For database we can use [SQLite](https://www.sqlite.org/) or [MySQL](https://www.mysql.com/). By default, it uses SQLite as a database.
 
-5. It uses [threading](https://en.wikipedia.org/wiki/Thread_(computing)) concept to send email.
+5. It uses the [threading](https://en.wikipedia.org/wiki/Thread_(computing)) concept to send an email.
 
 ## Sample Image
 
