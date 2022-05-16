@@ -40,10 +40,10 @@ def get_mysql_url():
 
 def read_mail_env():
     try:
-        server = os.getenv("MAIL_SERVER")
-        username = os.getenv("MAIL_USERNAME")
-        password = os.getenv("MAIL_PASSWORD")
-        port = int(os.getenv("MAIL_PORT"))
+        server = os.getenv("MAIL_SERVER", "")
+        username = os.getenv("MAIL_USERNAME", "")
+        password = os.getenv("MAIL_PASSWORD", "")
+        port = int(os.getenv("MAIL_PORT", "465"))
         use_tls = True if os.getenv("MAIL_USE_TLS") == "True" else False
         use_ssl = True if os.getenv("MAIL_USE_SSL") == "True" else False
 
