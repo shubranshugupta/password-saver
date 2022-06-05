@@ -9,10 +9,11 @@ def read_mysql_env():
         host = quote(os.getenv("MYSQL_HOST"))
         user = quote(os.getenv("MYSQL_USER"))
         password = quote(os.getenv("MYSQL_PASSWORD"))
+        port = os.getenv("MYSQL_PORT", 3306)
         
         if (user == "" or user is None) or (password == "" or password is None):
             return None
-        return host, user, password
+        return host, user, password, port
     
     except Exception as e:
         print(e)
@@ -22,9 +23,10 @@ def read_mysql_config():
     host = quote(get_value('config.yaml', 'MYSQL_HOST'))
     user = quote(get_value('config.yaml', 'MYSQL_USER'))
     password = quote(get_value('config.yaml', 'MYSQL_PASSWORD'))
+    port = get_value('config.yaml', "MYSQL_PORT")
     if (user == "" or user is None) or (password == "" or password is None):
         return None
-    return host, user, password
+    return host, user, password, port
 
 def get_mysql_url():
     output = read_mysql_env()
@@ -32,11 +34,11 @@ def get_mysql_url():
         output = read_mysql_config()
     if output is None:
         return None
-    host, user, password = output
+    host, user, password, port = output
     print("Mysql: ", output)
     if host == "":
         host = "localhost"
-    return f'mysql://{user}:{password}@{host}/password_saver'
+    return f'mysql://{user}:{password}@{host}:{port}/password_saver'
 
 def read_mail_env():
     try:
