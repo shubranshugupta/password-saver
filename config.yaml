@@ -8,6 +8,7 @@ DATABASE_URL: "sqlite:///data/password_saver.sqlite3"
 MYSQL_HOST: ""
 MYSQL_USER: ""
 MYSQL_PASSWORD: ""
+MYSQL_PORT: 3306
 
 # Mail server config
 MAIL_SERVER: 'smtp.gmail.com'

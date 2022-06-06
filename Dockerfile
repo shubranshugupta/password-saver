@@ -11,6 +11,7 @@ RUN pip3 install -r requirements.txt
 ENV MYSQL_HOST=""
 ENV MYSQL_USER=""
 ENV MYSQL_PASSWORD=""
+ENV MYSQL_PORT=3306
 
 # Mail Environment variables
 ENV MAIL_SERVER="smtp.gmail.com"

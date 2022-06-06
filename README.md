@@ -40,6 +40,7 @@ Most of the time, you don't want to store your passwords in plain text and it is
     MYSQL_HOST: "hostname"
     MYSQL_USER: "username"
     MYSQL_PASSWORD: "password"
+    MYSQL_PORT: 3306
 
     # Email Configuration
     # If you want to use Gmail then set the following keys. By default it uses Gmail smtp server.
