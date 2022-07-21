@@ -6,10 +6,10 @@ from urllib.parse import quote
 
 def read_mysql_env():
     try:
-        host = quote(os.getenv("MYSQL_HOST", ""))
-        user = quote(os.getenv("MYSQL_USER", ""))
-        password = quote(os.getenv("MYSQL_PASSWORD", ""))
-        port = os.getenv("MYSQL_PORT", 3306)
+        host = quote(os.environ.get("MYSQL_HOST", ""))
+        user = quote(os.environ.get("MYSQL_USER", ""))
+        password = quote(os.environ.get("MYSQL_PASSWORD", ""))
+        port = os.environ.get("MYSQL_PORT", 3306)
         
         if (user == "") or (password == ""):
             return None
@@ -42,14 +42,14 @@ def get_mysql_url():
 
 def read_mail_env():
     try:
-        server = os.getenv("MAIL_SERVER", "")
-        username = os.getenv("MAIL_USERNAME", "")
-        password = os.getenv("MAIL_PASSWORD", "")
-        port = int(os.getenv("MAIL_PORT", "465"))
-        use_tls = True if os.getenv("MAIL_USE_TLS").lower() == "true" else False
-        use_ssl = True if os.getenv("MAIL_USE_SSL").lower() == "true" else False
+        server = os.environ.get("MAIL_SERVER", "")
+        username = os.environ.get("MAIL_USERNAME", "")
+        password = os.environ.get("MAIL_PASSWORD", "")
+        port = int(os.environ.get("MAIL_PORT", "465"))
+        use_tls = True if os.environ.get("MAIL_USE_TLS").lower() == "true" else False
+        use_ssl = True if os.environ.get("MAIL_USE_SSL").lower() == "true" else False
 
-        if (server == "" or server is None) or (username == "" or username is None) or (password == "" or password is None):
+        if (server == "") or (username == "") or (password == ""):
             return None
         return server, username, password, port, use_tls, use_ssl
     except Exception as e:
@@ -77,8 +77,8 @@ def get_mail():
 
 def read_admin_env():
     try:
-        username = os.getenv("ADMIN_EMAIL")
-        password = os.getenv("ADMIN_PASSWORD")
+        username = os.environ.get("ADMIN_EMAIL")
+        password = os.environ.get("ADMIN_PASSWORD")
 
         if (username == "" or username is None) or (password == "" or password is None):
             return None
