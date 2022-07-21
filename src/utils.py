@@ -6,12 +6,12 @@ from urllib.parse import quote
 
 def read_mysql_env():
     try:
-        host = quote(os.getenv("MYSQL_HOST"))
-        user = quote(os.getenv("MYSQL_USER"))
-        password = quote(os.getenv("MYSQL_PASSWORD"))
+        host = quote(os.getenv("MYSQL_HOST", ""))
+        user = quote(os.getenv("MYSQL_USER", ""))
+        password = quote(os.getenv("MYSQL_PASSWORD", ""))
         port = os.getenv("MYSQL_PORT", 3306)
         
-        if (user == "" or user is None) or (password == "" or password is None):
+        if (user == "") or (password == ""):
             return None
         return host, user, password, port
     
@@ -46,8 +46,8 @@ def read_mail_env():
         username = os.getenv("MAIL_USERNAME", "")
         password = os.getenv("MAIL_PASSWORD", "")
         port = int(os.getenv("MAIL_PORT", "465"))
-        use_tls = True if os.getenv("MAIL_USE_TLS") == "True" else False
-        use_ssl = True if os.getenv("MAIL_USE_SSL") == "True" else False
+        use_tls = True if os.getenv("MAIL_USE_TLS").lower() == "true" else False
+        use_ssl = True if os.getenv("MAIL_USE_SSL").lower() == "true" else False
 
         if (server == "" or server is None) or (username == "" or username is None) or (password == "" or password is None):
             return None
