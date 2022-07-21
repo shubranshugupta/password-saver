@@ -4,6 +4,16 @@ from cryptography.fernet import Fernet
 import yaml
 from urllib.parse import quote
 
+def get_bool_from_env(env_var, defaulf_val=False):
+    if(os.environ.get(env_var) == None):
+        return default_val
+    elif(os.environ.get(env_var).lower() == "true"):
+        return True
+    elif(os.environ.get(env_var).lower() == "false"):
+        return False
+    else:
+        raise Exception(f"{env_var} should be bool.")
+
 def read_mysql_env():
     try:
         host = quote(os.environ.get("MYSQL_HOST", ""))
@@ -46,8 +56,8 @@ def read_mail_env():
         username = os.environ.get("MAIL_USERNAME", "")
         password = os.environ.get("MAIL_PASSWORD", "")
         port = int(os.environ.get("MAIL_PORT", "465"))
-        use_tls = True if os.environ.get("MAIL_USE_TLS").lower() == "true" else False
-        use_ssl = True if os.environ.get("MAIL_USE_SSL").lower() == "true" else False
+        use_tls = get_bool_from_env("MAIL_USE_TLS"), True)
+        use_ssl = get_bool_from_env("MAIL_USE_SSL"), False)
 
         if (server == "") or (username == "") or (password == ""):
             return None
