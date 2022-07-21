@@ -4,7 +4,7 @@ from cryptography.fernet import Fernet
 import yaml
 from urllib.parse import quote
 
-def get_bool_from_env(env_var, defaulf_val=False):
+def get_bool_from_env(env_var, default_val=False):
     if(os.environ.get(env_var) == None):
         return default_val
     elif(os.environ.get(env_var).lower() == "true"):
