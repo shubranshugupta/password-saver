@@ -56,8 +56,8 @@ def read_mail_env():
         username = os.environ.get("MAIL_USERNAME", "")
         password = os.environ.get("MAIL_PASSWORD", "")
         port = int(os.environ.get("MAIL_PORT", "465"))
-        use_tls = get_bool_from_env("MAIL_USE_TLS"), True)
-        use_ssl = get_bool_from_env("MAIL_USE_SSL"), False)
+        use_tls = get_bool_from_env("MAIL_USE_TLS", True)
+        use_ssl = get_bool_from_env("MAIL_USE_SSL", False)
 
         if (server == "") or (username == "") or (password == ""):
             return None
