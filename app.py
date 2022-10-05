@@ -13,6 +13,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from sqlalchemy_utils import database_exists, create_database
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from sqlalchemy.exc import OperationalError
 import os
 
 from src.utils import (
@@ -51,7 +52,10 @@ else:
 
 #database
 db.init_app(app)
-db.create_all(app=app)
+try:
+    db.create_all(app=app)
+except OperationalError as e:
+    print(e)
 
 
 # confirm email
